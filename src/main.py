@@ -1,6 +1,7 @@
+"""Project entrypoint"""
 import multiprocessing
 
-import uvicorn as uvicorn
+import uvicorn
 from fastapi import FastAPI
 
 from core.config import app_settings
@@ -10,6 +11,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
+    """root route"""
     return "Hello World"
 
 
