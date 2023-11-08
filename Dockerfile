@@ -1,5 +1,8 @@
 FROM python:3.10-alpine3.18
 
+ENV PYTHONPATH=src/
+ENV PYTHONUNBUFFERED 1
+
 RUN apk update && \
     apk add netcat-openbsd build-base libffi-dev
 
@@ -12,13 +15,12 @@ RUN python -m pip install --no-cache-dir poetry==1.6.1 \
     && poetry install --no-interaction --no-ansi \
     && rm -rf $(poetry config cache-dir)/{cache,artifacts}
 
-
 COPY .env .
+COPY alembic.ini .
+COPY migrations ./migrations
+COPY entrypoint.sh .
 COPY src ./src/
 
-#CMD while ! nc -z $DB_HOST $DB_PORT; do \
-#      sleep 0.1; \
-#    done && \
-#    alembic upgrade head
+VOLUME /app
 
-ENTRYPOINT ["python3", "src/main.py"]
+ENTRYPOINT ["sh", "entrypoint.sh"]

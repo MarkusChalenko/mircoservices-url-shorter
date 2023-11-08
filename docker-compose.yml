@@ -2,12 +2,21 @@ version: "3.9"
 services:
   database:
     image: postgres:16.0-alpine3.18
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DATABASE=postgres
     env_file:
       - ./.env
     ports:
-      - ":5432"
+      - "5432:5432"
     restart:
       always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -19,10 +28,11 @@ services:
       - ./.env
     ports:
       - ":8000"
-    restart:
-      always
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/app/migrations
 
   nginx:
     image: nginx:1.25.3-alpine3.18
@@ -37,5 +47,16 @@ services:
     depends_on:
       - app
 
+  cache:
+    image: redis:7.2.2-alpine3.18
+    restart: always
+    ports:
+      - ":6379"
+    depends_on:
+      - database
+    volumes:
+      - cache_data:/data
+
 volumes:
   postgres_data:
+  cache_data:
