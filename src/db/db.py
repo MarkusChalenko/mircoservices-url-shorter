@@ -1,23 +1,34 @@
 from typing import Union, Callable
 
+from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import (async_sessionmaker,
                                     create_async_engine,
                                     AsyncSession, AsyncEngine, AsyncConnection)
 
 from core.config import app_settings
+from models import User
 
 
-async def get_session() -> AsyncSession:
+async def get_async_session() -> AsyncSession:
     """
         Returns an asynchronous session using the `async_session` context manager.
 
         This function establishes an asynchronous session using the `async_session` context manager,
         which creates and manages an execution context for asynchronous operations.
 
+        if ERROR - rollback and close.
         :return: AsyncSession
     """
     async with async_session() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+
+
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+    yield SQLAlchemyUserDatabase(session, User)
 
 
 def create_sessionmaker(
@@ -38,5 +49,5 @@ def create_sessionmaker(
     )
 
 
-engin = create_async_engine(app_settings.postgres_dsn.unicode_string())
-async_session = create_sessionmaker(engin)
+engine = create_async_engine(app_settings.postgres_dsn.unicode_string())
+async_session = create_sessionmaker(engine)

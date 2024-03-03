@@ -17,6 +17,13 @@ np = "^1.0.2"
 numpy = "1.25"
 pydantic-settings = "^2.0.3"
 greenlet = "^3.0.1"
+fastapi-cache = "^0.1.0"
+redis = "^5.0.1"
+orjson = "^3.9.10"
+uuid = "^1.30"
+fastapi-users = {extras = ["sqlalchemy"], version = "^12.1.2"}
+oauth = "^1.0.1"
+pytest = "^8.0.2"
 
 
 [build-system]

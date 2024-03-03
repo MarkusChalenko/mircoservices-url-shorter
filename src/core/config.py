@@ -4,6 +4,11 @@ from pydantic import PostgresDsn
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings
 
+from core.logger import LOGGING
+from logging import config as logging_config
+
+logging_config.dictConfig(LOGGING)
+
 
 class AppSettings(BaseSettings):
     """
@@ -16,6 +21,7 @@ class AppSettings(BaseSettings):
         redis_host (str): The host or IP address of the Redis cache. Default value: 'cache'.
         redis_port (int): The port on which the Redis cache is running. Default value: 6379.
         postgres_echo (bool): Flag indicating whether database queries should be echoed.
+        debug (bool): Flag indicating debug application mod.
     """
 
     app_port: int = 8000
@@ -25,6 +31,8 @@ class AppSettings(BaseSettings):
     redis_host: str = 'cache'
     redis_port: int = 6379
     postgres_echo: bool = False
+    debug: bool = False
+    jwt_secret: str = 'SECRET'
 
     class Config:
         _env_file = ".env"
