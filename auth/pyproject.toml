@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "url-shorter"
-version = "0.1.0"
+name = "url-shorter-auth"
+version = "0.1.1"
 description = ""
-authors = ["Mark Chalenko <markus.chalenko@gmail.con>"]
-readme = "README.md"
+authors = ["Mark Chalenko <markus.chalenko@gmail.com>"]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
 fastapi = "^0.104.0"
-pydantic = "^2.4.2"
+pydantic = {extras = ["email"], version = "^2.6.4"}
 uvicorn = "^0.23.2"
 sqlalchemy = "^2.0.22"
 alembic = "^1.12.1"
@@ -28,7 +28,7 @@ python-jose = {extras = ["cryptogrphy"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.9"
 
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
