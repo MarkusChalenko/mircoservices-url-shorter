@@ -17,6 +17,32 @@ services:
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bd-net
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - mongo-net
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: exampl
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    networks:
+      - mongo-net
 
   app:
     build:
@@ -28,6 +54,8 @@ services:
       - "8000:8000"
     volumes:
       - ./gateway/src:/app/src
+    networks:
+      - gateway-net
 
   auth:
     build:
@@ -43,6 +71,25 @@ services:
     volumes:
       - ./auth/migrations:/app/migrations
       - ./auth/src:/app/src
+    networks:
+      - gateway-net
+      - auth-net
+      - bd-net
+
+  url-shorter:
+    build:
+      context: ./url-shorter
+      dockerfile: Dockerfile
+    env_file:
+      - ./url-shorter/.env
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./url-shorter/src:/app/src
+    networks:
+      - gateway-net
+      - mongo-net
+      - auth-net
 
   nginx:
     image: nginx:1.25.3-alpine3.18
@@ -54,6 +101,19 @@ services:
       always
     depends_on:
       - app
+    networks:
+      - gateway-net
 
 volumes:
   postgres_data:
+  mongodb_data:
+
+networks:
+  gateway-net:
+    driver: bridge
+  bd-net:
+    driver: bridge
+  mongo-net:
+    driver: bridge
+  auth-net:
+    driver: bridge

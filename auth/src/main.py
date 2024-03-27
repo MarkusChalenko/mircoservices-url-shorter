@@ -8,6 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import caches, close_caches
 from fastapi_cache.backends.redis import RedisCacheBackend, CACHE_KEY
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.v1.auth import auth_router
 from api.v1.user import user_router
@@ -29,11 +30,19 @@ async def lifespan(app: FastAPI) -> AsyncContextManager[None]:
 
 app = FastAPI(
     lifespan=lifespan,
-    title="URLshorter-auth",
+    title="Authentication",
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
     redoc_url=None
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

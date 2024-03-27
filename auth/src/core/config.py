@@ -24,7 +24,7 @@ class AppSettings(BaseSettings):
         debug (bool): Flag indicating debug application mod.
     """
 
-    app_port: int = 8000
+    app_port: int = 8001
     app_host: str = 'auth'
     postgres_dsn: PostgresDsn = MultiHostUrl(
         'postgresql+asyncpg://postgres:postgres@database:5432/postgres')
