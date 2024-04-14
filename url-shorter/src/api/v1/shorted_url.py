@@ -4,7 +4,7 @@ from starlette import status
 from auth.auth import user_dependency
 from models.shorted_url import ShortedUrl, Url, UpdateShortedUrl
 
-from services.shorted_url import get_su, create_su, update_su, delete_su, get_su_by_shorted
+from services.shorted_url import get_su, create_su, update_su, delete_su
 
 short_url_router = APIRouter(
     prefix="/short_url",
@@ -15,12 +15,6 @@ short_url_router = APIRouter(
 @short_url_router.get("/", status_code=status.HTTP_200_OK, response_model=list[ShortedUrl])
 async def get_short_urls() -> list[ShortedUrl]:
     short_url = get_su()
-    return short_url
-
-
-@short_url_router.get("/{shorted}", status_code=status.HTTP_200_OK)
-async def get_short_url(shorted: str) -> ShortedUrl | None:
-    short_url = get_su_by_shorted(shorted)
     return short_url
 
 

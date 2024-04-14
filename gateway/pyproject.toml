@@ -19,6 +19,7 @@ python-multipart = "^0.0.9"
 bcrypt = "^4.1.2"
 oauth = "^1.0.1"
 pydantic = {extras = ["email"], version = "^2.6.4"}
+bson = "^0.5.10"
 
 
 [build-system]

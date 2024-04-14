@@ -27,6 +27,7 @@ def create_su(user_id: int, url_to_short: HttpUrl) -> ShortedUrl:
         "origin": str(url_to_short),
         "user_id": user_id,
         "shorted": create_short_url(url_to_short, user_id),
+        "is_active": True,
         "count_of_visits": 0,
         "expire_at": datetime.utcnow() + timedelta(days=app_settings.short_url_expire_days)
     }
@@ -37,11 +38,9 @@ def create_su(user_id: int, url_to_short: HttpUrl) -> ShortedUrl:
 
 
 def update_su(short_url_id: str, short_url: UpdateShortedUrl) -> ShortedUrl:
-    print(dict(short_url))
     updated_url = collection_name.find_one_and_update({"_id": ObjectId(short_url_id)},
                                                       {"$set": dict(short_url)},
                                                       return_document=ReturnDocument.AFTER)
-    print(updated_url)
     return parse_obj_as(ShortedUrl, updated_url)
 
 

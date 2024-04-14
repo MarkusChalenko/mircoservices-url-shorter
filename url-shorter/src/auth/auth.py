@@ -13,7 +13,8 @@ token_url: str = f"{app_settings.auth_service_url}/api/v1/auth/token"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/token")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    print("get_current_user HAFGAGAGA")
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -21,12 +22,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
 
     try:
+        print("IN FUCKING AUTH")
+        print(token)
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(payload)
         username: str = payload.get("sub")
+        print(username)
         if username is None:
+            print("ASDADASDADA")
             raise credentials_exception
         return payload
     except JWTError:
+        print("FUUUUUUUUCK")
         raise credentials_exception
 
 

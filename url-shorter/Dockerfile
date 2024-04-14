@@ -4,7 +4,9 @@ ENV PYTHONPATH=src/
 ENV PYTHONUNBUFFERED 1
 
 RUN apk update && \
-    apk add build-base libffi-dev
+    apk add build-base libffi-dev tzdata
+
+RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 WORKDIR /app
 

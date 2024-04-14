@@ -19,14 +19,8 @@ def endpoint(endp: str) -> str:
     return auth_microservice_url + endp
 
 
-@user_router.get("/secure_endpoint", status_code=status.HTTP_200_OK)
-async def secure_endpoint(user: user_dependency):
-    return {"resp": "123"}
-
-
 @user_router.get("/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user(user: user_dependency, user_id: int):
-    print("/user_router.get")
     async with httpx.AsyncClient() as client:
         response = await client.get(endpoint(f"/api/v1/user/{user_id}"))
         user = response.json()
@@ -58,6 +52,3 @@ async def delete_existing_user(delete_user_id: int) -> dict:
     async with httpx.AsyncClient() as client:
         await client.delete(endpoint(f"/api/v1/user/{delete_user_id}"))
         return {"message": f"User with id:{delete_user_id} deleted successfully."}
-
-
-

@@ -1,7 +1,7 @@
 import datetime
 
 from bson import ObjectId
-from pydantic import BaseModel, Field, ValidationError, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class CustomObjectId(ObjectId):
@@ -19,6 +19,9 @@ class CustomObjectId(ObjectId):
 class Url(BaseModel):
     origin: HttpUrl
 
+    def __json__(self):
+        return {"origin": self.origin}
+
 
 class UpdateShortedUrl(BaseModel):
     shorted: str
@@ -35,13 +38,17 @@ class ShortedUrl(Url):
     count_of_visits: int
     expire_at: datetime.datetime
 
-    def convert_to_update_model(self) -> UpdateShortedUrl:
-        return UpdateShortedUrl(
-            shorted=self.shorted,
-            is_active=self.is_active,
-            count_of_visits=self.count_of_visits,
-            expire_at=self.expire_at
-        )
+    def __json__(self):
+        url_json = super().__json__()
+        url_json.update({
+            "id": self.id,
+            "shorted": self.shorted,
+            "is_active": self.is_active,
+            "user_id": self.user_id,
+            "count_of_visits": self.count_of_visits,
+            "expire_at": self.expire_at.isoformat() if self.expire_at else None
+        })
+        return url_json
 
 
 class ReadShortedUrl(ShortedUrl):

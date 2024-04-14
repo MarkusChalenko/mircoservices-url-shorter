@@ -19,6 +19,7 @@ class AppSettings(BaseSettings):
     jwt_secret: str = 'SECRET'
     algorithm: str = 'HS256'
     auth_service_url: str = 'http://auth:8001'
+    url_shorter_service_url: str = 'http://url-shorter:8002'
 
     class Config:
         _env_file = ".env"

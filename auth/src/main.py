@@ -50,10 +50,10 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")
 
 
-@app.get("/")
+@app.get("/ping")
 def root():
     """root route"""
-    return "Hello"
+    return "pong"
 
 
 if __name__ == '__main__':
