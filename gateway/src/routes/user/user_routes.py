@@ -1,6 +1,7 @@
 import httpx
 from fastapi import APIRouter
 from starlette import status
+from starlette.requests import Request
 
 from auth.auth import user_dependency
 from schemas.auth_microservice.user import UserRead, UserCreate, UserUpdate
@@ -20,9 +21,10 @@ def endpoint(endp: str) -> str:
 
 
 @user_router.get("/{user_id}", status_code=status.HTTP_200_OK)
-async def get_user(user: user_dependency, user_id: int):
+async def get_user(request: Request, user: user_dependency, user_id: int):
     async with httpx.AsyncClient() as client:
-        response = await client.get(endpoint(f"/api/v1/user/{user_id}"))
+        response = await client.get(endpoint(f"/api/v1/user/{user_id}"),
+                                    headers=request.headers)
         user = response.json()
 
     return user
@@ -39,16 +41,23 @@ async def create_user(create_user_data: UserCreate):
 
 
 @user_router.put("/{user_id}", status_code=status.HTTP_200_OK, response_model=UserRead)
-async def update_existing_user(user_id: int,
+async def update_existing_user(request: Request,
+                               user: user_dependency,
+                               user_id: int,
                                update_user_data: UserUpdate) -> UserRead:
     async with httpx.AsyncClient() as client:
-        response = await client.put(endpoint(f"/api/v1/user/{user_id}"), json=update_user_data.dict())
+        response = await client.put(endpoint(f"/api/v1/user/{user_id}"),
+                                    json=update_user_data.dict(),
+                                    headers=request.headers)
         user: UserRead = response.json()
     return user
 
 
 @user_router.delete("/{user_id}", status_code=status.HTTP_200_OK)
-async def delete_existing_user(delete_user_id: int) -> dict:
+async def delete_existing_user(request: Request,
+                               user: user_dependency,
+                               delete_user_id: int) -> dict:
     async with httpx.AsyncClient() as client:
-        await client.delete(endpoint(f"/api/v1/user/{delete_user_id}"))
+        await client.delete(endpoint(f"/api/v1/user/{delete_user_id}"),
+                            headers=request.headers)
         return {"message": f"User with id:{delete_user_id} deleted successfully."}

@@ -5,6 +5,8 @@ from db.db import db_dependency
 from schemas.user import UserCreate, UserRead, UserUpdate
 from services.user import create_new_user, get_user_by_id, update_user, delete_user
 
+from services.auth import user_dependency
+
 user_router = APIRouter(
     prefix="/user",
     tags=['user']
@@ -26,7 +28,8 @@ async def create_user(db: db_dependency,
 
 
 @user_router.put("/{user_id}", status_code=status.HTTP_200_OK, response_model=UserRead)
-async def update_existing_user(db: db_dependency,
+async def update_existing_user(user: user_dependency,
+                               db: db_dependency,
                                user_id: int,
                                update_user_data: UserUpdate) -> UserRead:
     updated_user_data: UserRead = \
@@ -35,7 +38,8 @@ async def update_existing_user(db: db_dependency,
 
 
 @user_router.delete("/{user_id}", status_code=status.HTTP_200_OK)
-async def delete_existing_user(db: db_dependency,
+async def delete_existing_user(user: user_dependency,
+                               db: db_dependency,
                                delete_user_id: int):
     await delete_user(db=db, user_id=delete_user_id)
     return {"message": f"User with id:{delete_user_id} deleted successfully."}
