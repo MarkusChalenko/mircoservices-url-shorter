@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncContextManager, Optional
 
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import caches, close_caches
 from fastapi_cache.backends.redis import RedisCacheBackend, CACHE_KEY
@@ -12,8 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.v1.auth import auth_router
 from api.v1.user import user_router
+from services.auth import user_dependency
 from core.config import app_settings
-from db.db import db_dependency
 
 
 @asynccontextmanager
@@ -43,6 +43,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -51,7 +52,7 @@ app.include_router(user_router, prefix="/api/v1")
 
 
 @app.get("/ping")
-def root():
+def root(user: user_dependency) -> str:
     """root route"""
     return "pong"
 

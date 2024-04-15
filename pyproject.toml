@@ -2,7 +2,7 @@
 name = "url-shorter"
 version = "0.1.0"
 description = ""
-authors = ["Mark Chalenko <markus.chalenko@gmail.con>"]
+authors = ["Mark Chalenko <markus.chalenko@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

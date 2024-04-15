@@ -5,13 +5,13 @@ import uvicorn
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import ORJSONResponse
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from api.v1.shorted_url import short_url_router
 from api.v1.token import token_router
+from auth.auth import user_dependency
 from core.config import app_settings
-from pymongo.mongo_client import MongoClient
 
 from schedule_tasks.deactivate_expired_urls import deactivate_expiring_urls
 from services.shorted_url import get_su_by_shorted
@@ -43,6 +43,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(short_url_router, prefix="/api/v1")
@@ -50,8 +51,7 @@ app.include_router(token_router, prefix="/api/v1")
 
 
 @app.get("/ping")
-def root(request: Request):
-    print(request.headers)
+async def root(user: user_dependency) -> str:
     """root route"""
     return "pong"
 
