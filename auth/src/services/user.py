@@ -39,14 +39,14 @@ async def update_user(db: db_dependency, user_id: int, update_data: UserUpdate) 
         .where(User.id == user_id)\
         .values(update_data.dict(exclude_unset=True))
     updated_count = await db.execute(statement)
-
-    if updated_count.rowcount == 0:
+    rows = updated_count.rowcount()
+    if rows == 0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {user_id} not found")
 
     await db.commit()
 
-    updated_user_data: User = await db.get(User, user_id)
-    return updated_user_data.to_user_read()
+    updated_user_data: UserRead = await get_user_by_id(db, user_id)
+    return updated_user_data
 
 
 async def delete_user(db: db_dependency, user_id: int) -> None:

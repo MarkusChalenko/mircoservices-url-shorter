@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 from typing import Annotated, Dict
+from calendar import timegm
 
 from fastapi import HTTPException, Depends
 from sqlalchemy import select
@@ -26,8 +27,8 @@ async def authenticate_user(login: str, password: str, db: db_dependency) -> Use
 
 def create_access_token(login: str, user_id: int, expires_delta: timedelta) -> str:
     encode = {'sub': login, 'id': user_id}
-    expires = datetime.utcnow() + expires_delta
-    encode.update({'exp': expires.timestamp()})
+    expires = timegm((datetime.utcnow() + expires_delta).utctimetuple())
+    encode.update({'exp': expires})
     return jwt.encode(encode, app_settings.jwt_secret, algorithm=app_settings.algorithm)
 
 
