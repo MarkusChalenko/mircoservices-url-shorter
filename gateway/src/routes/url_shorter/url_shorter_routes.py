@@ -17,14 +17,10 @@ url_shorter_router = APIRouter(
 url_shorter_microservice_url: str = app_settings.url_shorter_service_url
 
 
-def endpoint(endp: str) -> str:
-    return url_shorter_microservice_url + endp
-
-
 @url_shorter_router.get("/", status_code=status.HTTP_200_OK, response_model=list[ShortedUrl])
 async def get_short_urls() -> list[ShortedUrl]:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(endpoint(f"/api/v1/short_url/"))
+    async with httpx.AsyncClient(base_url=url_shorter_microservice_url) as client:
+        response = await client.get(f"/api/v1/short_url/")
         shorted_urls: List[ShortedUrl] = response.json()
 
     return shorted_urls
@@ -32,8 +28,8 @@ async def get_short_urls() -> list[ShortedUrl]:
 
 @url_shorter_router.post("/", status_code=status.HTTP_201_CREATED, response_model=ShortedUrl)
 async def create_short_url(request: Request, user: user_dependency, url_to_short: Url) -> ShortedUrl:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(endpoint(f"/api/v1/short_url/"),
+    async with httpx.AsyncClient(base_url=url_shorter_microservice_url) as client:
+        response = await client.post(f"/api/v1/short_url/",
                                      json=url_to_short.json(),
                                      headers=request.headers)
         created_shorted_url = response.json()
@@ -43,8 +39,8 @@ async def create_short_url(request: Request, user: user_dependency, url_to_short
 
 @url_shorter_router.put("/", status_code=status.HTTP_200_OK, response_model=ShortedUrl)
 async def update_short_url(request: Request, user: user_dependency, short_url_id: str, short_url: UpdateShortedUrl) -> ShortedUrl:
-    async with httpx.AsyncClient() as client:
-        response = await client.put(endpoint(f"/api/v1/short_url/{short_url_id}"),
+    async with httpx.AsyncClient(base_url=url_shorter_microservice_url) as client:
+        response = await client.put(f"/api/v1/short_url/{short_url_id}",
                                     json=short_url.dict(),
                                     headers=request.headers)
         shorted_url: ShortedUrl = response.json()
@@ -54,8 +50,8 @@ async def update_short_url(request: Request, user: user_dependency, short_url_id
 
 @url_shorter_router.delete("/", status_code=status.HTTP_200_OK)
 async def delete_short_url(request: Request, user: user_dependency, short_url_id: str) -> dict:
-    async with httpx.AsyncClient() as client:
-        await client.delete(endpoint(f"/api/v1/short_url/{short_url_id}"),
+    async with httpx.AsyncClient(base_url=url_shorter_microservice_url) as client:
+        await client.delete(f"/api/v1/short_url/{short_url_id}",
                             headers=request.headers)
 
     return {"message": f"URL with id:{short_url_id} deleted successfully."}

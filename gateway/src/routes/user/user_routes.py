@@ -16,14 +16,10 @@ user_router = APIRouter(
 auth_microservice_url: str = app_settings.auth_service_url
 
 
-def endpoint(endp: str) -> str:
-    return auth_microservice_url + endp
-
-
 @user_router.get("/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user(request: Request, user: user_dependency, user_id: int):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(endpoint(f"/api/v1/user/{user_id}"),
+    async with httpx.AsyncClient(base_url=auth_microservice_url) as client:
+        response = await client.get(f"/api/v1/user/{user_id}",
                                     headers=request.headers)
         user = response.json()
 
@@ -32,10 +28,10 @@ async def get_user(request: Request, user: user_dependency, user_id: int):
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserRead)
 async def create_user(create_user_data: UserCreate):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(base_url=auth_microservice_url) as client:
         user_data_dict = create_user_data.dict()
         user_data_dict['registered_at'] = create_user_data.registered_at.isoformat()
-        response = await client.post(endpoint(f"/api/v1/user/"), json=user_data_dict)
+        response = await client.post(f"/api/v1/user/", json=user_data_dict)
         user: UserRead = response.json()
     return user
 
@@ -45,8 +41,8 @@ async def update_existing_user(request: Request,
                                user: user_dependency,
                                user_id: int,
                                update_user_data: UserUpdate) -> UserRead:
-    async with httpx.AsyncClient() as client:
-        response = await client.put(endpoint(f"/api/v1/user/{user_id}"),
+    async with httpx.AsyncClient(base_url=auth_microservice_url) as client:
+        response = await client.put(f"/api/v1/user/{user_id}",
                                     json=update_user_data.dict(),
                                     headers=request.headers)
         user: UserRead = response.json()
@@ -57,7 +53,7 @@ async def update_existing_user(request: Request,
 async def delete_existing_user(request: Request,
                                user: user_dependency,
                                delete_user_id: int) -> dict:
-    async with httpx.AsyncClient() as client:
-        await client.delete(endpoint(f"/api/v1/user/{delete_user_id}"),
+    async with httpx.AsyncClient(base_url=auth_microservice_url) as client:
+        await client.delete(f"/api/v1/user/{delete_user_id}",
                             headers=request.headers)
         return {"message": f"User with id:{delete_user_id} deleted successfully."}
